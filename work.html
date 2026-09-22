@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบแจ้งซ่อมคอมพิวเตอร์ออนไลน์ - เอ็ม ไอที ออลอินวัน (M IT ALL IN ONE)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Prompt -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .step-active {
+            color: #2563eb;
+            font-weight: 600;
+        }
+        .step-completed {
+            color: #059669;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col text-slate-800">
+
+    <!-- Header Navigation -->
+    <header class="bg-indigo-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
+                <div class="bg-blue-600 p-2.5 rounded-xl shadow-md">
+                    <i class="fa-solid fa-laptop-medical text-2xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wide leading-none">เอ็ม ไอที ออลอินวัน</h1>
+                    <span class="text-xs text-indigo-200">M IT ALL IN ONE - Computer Repair Service</span>
+                </div>
+            </div>
+
+            <!-- View Switcher & Nav Buttons -->
+            <div class="flex items-center space-x-2 sm:space-x-4">
+                <button onclick="switchTab('tracking-lookup')" class="px-3 py-1.5 text-xs sm:text-sm bg-indigo-800 hover:bg-indigo-700 rounded-lg transition duration-200 flex items-center gap-1.5 border border-indigo-700">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <span class="hidden sm:inline">ติดตามสถานะ</span>
+                </button>
+                <div class="h-6 w-px bg-indigo-700"></div>
+                <button id="viewToggleBtn" onclick="toggleAdminView()" class="px-3 py-1.5 text-xs sm:text-sm bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold rounded-lg shadow-sm transition duration-200 flex items-center gap-1.5">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span id="viewToggleText">มุมมองช่าง (Admin)</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Body -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- Banner Announcement -->
+        <div class="mb-6 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-md relative overflow-hidden">
+            <div class="relative z-10 max-w-2xl">
+                <span class="inline-block px-3 py-1 bg-white/20 rounded-full text-xs font-medium mb-2 backdrop-blur-sm">⚡ บริการแจ้งซ่อมออนไลน์ 24/7</span>
+                <h2 class="text-2xl sm:text-3xl font-bold mb-2">ซ่อมคอมพิวเตอร์ครบวงจร สะดวกรวดเร็ว ติดตามได้ Real-time</h2>
+                <p class="text-indigo-100 text-sm sm:text-base mb-4">บริการซ่อมคอมตั้งโต๊ะ โน้ตบุ๊ก อุปกรณ์ IT พร้อมบริการรับ-ส่งถึงบ้าน หรือส่งพัสดุมาที่ร้าน</p>
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="switchTab('create-ticket')" class="px-5 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold rounded-xl shadow-lg hover:shadow-xl transition duration-200 flex items-center gap-2">
+                        <i class="fa-solid fa-plus-circle"></i> แจ้งซ่อมออนไลน์ทันที
+                    </button>
+                    <button onclick="switchTab('tracking-lookup')" class="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white font-medium rounded-xl border border-white/30 backdrop-blur-sm transition duration-200 flex items-center gap-2">
+                        <i class="fa-solid fa-search"></i> เช็กสถานะงานซ่อม
+                    </button>
+                </div>
+            </div>
+            <i class="fa-solid fa-microchip absolute -right-6 -bottom-10 text-9xl text-white/10 transform -rotate-12 pointer-events-none"></i>
+        </div>
+
+        <!-- TAB 1: CUSTOMER REPAIR FORM -->
+        <section id="tab-create-ticket" class="tab-content bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+            <div class="border-b border-slate-100 pb-4 mb-6">
+                <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-file-pen text-indigo-600"></i> แบบฟอร์มแจ้งซ่อมคอมพิวเตอร์
+                </h3>
+                <p class="text-sm text-slate-500">กรุณากรอกข้อมูลและรายละเอียดอาการเสียให้ครบถ้วน เพื่อการประเมินที่แม่นยำ</p>
+            </div>
+
+            <form id="repairForm" onsubmit="handleFormSubmit(event)" class="space-y-6">
+                <!-- Section 1: Customer Info -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">ชื่อ-นามสกุล ผู้แจ้งซ่อม <span class="text-red-500">*</span></label>
+                        <input type="text" id="custName" required placeholder="เช่น สมชาย ใจดี" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">เบอร์โทรศัพท์ติดต่อ <span class="text-red-500">*</span></label>
+                        <input type="tel" id="custPhone" required placeholder="เช่น 081-234-5678" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150">
+                    </div>
+                </div>
+
+                <!-- Section 2: Device Info -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">ประเภทอุปกรณ์ <span class="text-red-500">*</span></label>
+                        <select id="deviceType" required class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150">
+                            <option value="">-- เลือกประเภทอุปกรณ์ --</option>
+                            <option value="คอมพิวเตอร์ตั้งโต๊ะ (PC Desktop)">คอมพิวเตอร์ตั้งโต๊ะ (PC Desktop)</option>
+                            <option value="โน้ตบุ๊ก (Notebook/Laptop)">โน้ตบุ๊ก (Notebook/Laptop)</option>
+                            <option value="อุปกรณ์เสริม/อื่นๆ">อุปกรณ์เสริม/อื่นๆ (All-in-One, Monitor, ฯลฯ)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">ยี่ห้อ / รุ่น / สเปกโดยสังเขป</label>
+                        <input type="text" id="deviceModel" placeholder="เช่น Asus ROG / Dell Inspiron 15" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150">
+                    </div>
+                </div>
+
+                <!-- Symptom Description & Image -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">รายละเอียดอาการเสีย / ปัญหาที่พบ <span class="text-red-500">*</span></label>
+                    <textarea id="issueDesc" rows="3" required placeholder="อธิบายอาการเสีย เช่น เปิดไม่ติด, จอฟ้า, เครื่องช้ามาก, มีเสียงดังผิดปกติ..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">แนบรูปภาพอาการเสีย (ตัวอย่าง/ถ้ามี)</label>
+                    <input type="file" id="issueImg" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
+                </div>
+
+                <!-- Section 3: Delivery Options -->
+                <div class="border-t border-slate-100 pt-6">
+                    <label class="block text-base font-semibold text-slate-800 mb-3">รูปแบบการส่งเครื่องซ่อม <span class="text-red-500">*</span></label>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <!-- Option A -->
+                        <label class="relative flex flex-col p-4 border-2 rounded-2xl cursor-pointer hover:border-indigo-500 transition duration-150 border-slate-200" id="deliveryOptA">
+                            <input type="radio" name="deliveryType" value="pickup" checked onchange="toggleDeliveryDetails()" class="sr-only">
+                            <div class="flex items-center justify-between mb-2">
+                                <i class="fa-solid fa-truck-pickup text-2xl text-indigo-600"></i>
+                                <span class="badge bg-indigo-100 text-indigo-800 text-xs px-2 py-0.5 rounded-full font-medium">ยอดนิยม</span>
+                            </div>
+                            <span class="font-bold text-slate-800">ให้ช่างไปรับเครื่อง</span>
+                            <span class="text-xs text-slate-500 mt-1">ช่างเดินทางไปรับเครื่องถึงบ้าน/ที่ทำงาน</span>
+                        </label>
+
+                        <!-- Option B -->
+                        <label class="relative flex flex-col p-4 border-2 rounded-2xl cursor-pointer hover:border-indigo-500 transition duration-150 border-slate-200" id="deliveryOptB">
+                            <input type="radio" name="deliveryType" value="self" onchange="toggleDeliveryDetails()" class="sr-only">
+                            <div class="flex items-center justify-between mb-2">
+                                <i class="fa-solid fa-store text-2xl text-emerald-600"></i>
+                                <span class="badge bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full font-medium">ส่งตรงร้าน</span>
+                            </div>
+                            <span class="font-bold text-slate-800">ลูกค้ามาส่งเองที่ร้าน</span>
+                            <span class="text-xs text-slate-500 mt-1">นำเครื่องมาส่ง ณ ร้าน เอ็ม ไอที ออลอินวัน</span>
+                        </label>
+
+                        <!-- Option C -->
+                        <label class="relative flex flex-col p-4 border-2 rounded-2xl cursor-pointer hover:border-indigo-500 transition duration-150 border-slate-200" id="deliveryOptC">
+                            <input type="radio" name="deliveryType" value="parcel" onchange="toggleDeliveryDetails()" class="sr-only">
+                            <div class="flex items-center justify-between mb-2">
+                                <i class="fa-solid fa-box text-2xl text-amber-600"></i>
+                                <span class="badge bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded-full font-medium">ส่งพัสดุ</span>
+                            </div>
+                            <span class="font-bold text-slate-800">ส่งทางพัสดุเอกชน</span>
+                            <span class="text-xs text-slate-500 mt-1">จัดส่งผ่าน Flash, J&T, ไปรษณีย์ไทย ฯลฯ</span>
+                        </label>
+                    </div>
+
+                    <!-- Dynamic Delivery Details Container -->
+                    <!-- Pickup Details -->
+                    <div id="details-pickup" class="p-4 bg-indigo-50/60 rounded-xl border border-indigo-100 space-y-3">
+                        <h4 class="text-sm font-semibold text-indigo-900 flex items-center gap-1.5">
+                            <i class="fa-solid fa-location-dot text-indigo-600"></i> กรอกที่อยู่นัดรับเครื่อง
+                        </h4>
+                        <div>
+                            <textarea id="pickupAddress" rows="2" placeholder="กรอกบ้านเลขที่ ถนน ตำบล อำเภอ จุดสังเกต..." class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Self Details (Shop Info & Map) -->
+                    <div id="details-self" class="hidden p-4 bg-emerald-50/60 rounded-xl border border-emerald-100 space-y-3">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+                            <div>
+                                <h4 class="text-sm font-bold text-emerald-900 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-map-pin text-emerald-600"></i> พิกัดร้าน: เอ็ม ไอที ออลอินวัน
+                                </h4>
+                                <p class="text-xs text-slate-600 mt-1">11 16 ตำบล นครชุม อำเภอเมืองกำแพงเพชร กำแพงเพชร 62000</p>
+                                <p class="text-xs text-slate-500">⏰ เวลาทำการ: 09:00 - 20:00 น. (เปิดบริการทุกวัน) | 📞 099-470-9745</p>
+                            </div>
+                            <a href="https://maps.app.goo.gl/maps/place/เอ็ม+ไอที+ออลอินวัน" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow inline-flex items-center gap-1.5 transition">
+                                <i class="fa-solid fa-location-arrow"></i> เปิดนำทาง Google Maps
+                            </a>
+                        </div>
+                        <!-- Embedded Google Maps iframe -->
+                        <div class="w-full h-48 rounded-xl overflow-hidden shadow-inner border border-emerald-200">
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3826.983084803987!2d99.5178946!3d16.4630452!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30de194e79535a8b%3A0xa578e31385a6ba8a!2z4LmA4Lit4LmI4LihIOC5gOC4reC4p-C5gOC4q-C4oS4uLi4!5e0!3m2!1sth!2sth!4v1700000000000!5m2!1sth!2sth" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                        </div>
+                    </div>
+
+                    <!-- Parcel Details -->
+                    <div id="details-parcel" class="hidden p-4 bg-amber-50/60 rounded-xl border border-amber-100 space-y-3">
+                        <div class="text-xs text-slate-700 bg-white p-3 rounded-lg border border-amber-200">
+                            <p class="font-bold text-amber-900 mb-1"><i class="fa-solid fa-box-archive"></i> ที่อยู่สำหรับจัดส่งพัสดุมาที่ร้าน:</p>
+                            <p>ร้าน เอ็ม ไอที ออลอินวัน (099-470-9745)</p>
+                            <p>11 16 ต.นครชุม อ.เมืองกำแพงเพชร จ.กำแพงเพชร 62000</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1">หมายเลขพัสดุ (Tracking Number) <span class="text-xs text-slate-400">(กรอกภายหลังได้)</span></label>
+                            <input type="text" id="parcelTrackingInput" placeholder="เช่น TH123456789" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-amber-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Submit Button -->
+                <div class="pt-4 border-t border-slate-100 flex justify-end">
+                    <button type="submit" class="w-full sm:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-indigo-200 transition duration-200 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> ยืนยันการแจ้งซ่อม
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- TAB 2: TRACKING LOOKUP & DETAILS -->
+        <section id="tab-tracking-lookup" class="tab-content hidden space-y-6">
+            <!-- Search Box -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-magnifying-glass text-indigo-600"></i> ตรวจสอบสถานะงานซ่อม
+                </h3>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="searchInput" placeholder="กรอกหมายเลขตั๋วซ่อม (เช่น REP-2026-001) หรือ เบอร์โทรศัพท์" class="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500">
+                    <button onclick="searchTicket()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl shadow transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-search"></i> ค้นหา
+                    </button>
+                </div>
+            </div>
+
+            <!-- Active Ticket Detail View -->
+            <div id="ticketDetailContainer" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+                <!-- Loaded dynamically via JS -->
+            </div>
+        </section>
+
+        <!-- TAB 3: ADMIN / TECHNICIAN DASHBOARD -->
+        <section id="tab-admin" class="tab-content hidden space-y-6">
+            <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <span class="px-2.5 py-1 bg-amber-500 text-slate-900 font-bold text-xs rounded-md">ADMIN CONTROL PANEL</span>
+                    <h3 class="text-xl font-bold mt-1">ระบบจัดการงานซ่อมหน้าร้าน / สำหรับช่างเทคนิค</h3>
+                    <p class="text-xs text-slate-400">อัปเดตสถานะงาน ออกใบเสนอราคา และบันทึกประกันดิจิทัล</p>
+                </div>
+                <button onclick="addNewMockData()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold rounded-lg shadow transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-plus"></i> เพิ่มเคสทดสอบตัวอย่าง
+                </button>
+            </div>
+
+            <!-- Admin Ticket Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                    <h4 class="font-bold text-slate-800">รายการแจ้งซ่อมทั้งหมดในระบบ</h4>
+                    <span id="ticketCountBadge" class="text-xs bg-indigo-100 text-indigo-800 font-semibold px-2.5 py-1 rounded-full">0 รายการ</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100/70 text-slate-600 text-xs uppercase tracking-wider border-b border-slate-200">
+                                <th class="py-3.5 px-4 font-semibold">เลขตั๋ว</th>
+                                <th class="py-3.5 px-4 font-semibold">ลูกค้า / เบอร์โทร</th>
+                                <th class="py-3.5 px-4 font-semibold">อุปกรณ์ / อาการ</th>
+                                <th class="py-3.5 px-4 font-semibold">รูปแบบจัดส่ง</th>
+                                <th class="py-3.5 px-4 font-semibold">สถานะปัจจุบัน</th>
+                                <th class="py-3.5 px-4 font-semibold text-center">จัดการงาน</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminTicketTableBody" class="divide-y divide-slate-100 text-sm">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL 1: Digital Quotation Modal -->
+    <div id="quotationModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-200 transform transition-all">
+            <div class="bg-indigo-900 text-white p-5 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-file-invoice-dollar text-amber-400 text-xl"></i>
+                    <h3 class="font-bold text-lg">ใบเสนอราคาดิจิทัล (Digital Quotation)</h3>
+                </div>
+                <button onclick="closeModal('quotationModal')" class="text-slate-300 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                <div class="text-xs text-slate-500 space-y-1">
+                    <p class="font-bold text-slate-800 text-sm">ร้าน เอ็ม ไอที ออลอินวัน (M IT ALL IN ONE)</p>
+                    <p>เลขที่ใบเสนอราคา: <span id="quoteId" class="font-mono text-slate-700">QT-2026-001</span></p>
+                    <p>ผู้รับบริการ: <span id="quoteCustName" class="font-medium text-slate-700">-</span></p>
+                </div>
+
+                <div class="border border-slate-200 rounded-xl overflow-hidden">
+                    <table class="w-full text-xs text-left">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-600">
+                            <tr>
+                                <th class="p-2.5 font-semibold">รายการอะไหล่ / ค่าบริการ</th>
+                                <th class="p-2.5 font-semibold text-right">จำนวนเงิน (บาท)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="quoteItemsList" class="divide-y divide-slate-100">
+                            <!-- Populated via JS -->
+                        </tbody>
+                        <tfoot class="bg-indigo-50/50 font-bold border-t border-slate-200">
+                            <tr>
+                                <td class="p-2.5 text-right text-slate-700">ราคารวมทั้งสิ้น:</td>
+                                <td id="quoteTotalPrice" class="p-2.5 text-right text-indigo-700 text-sm">0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800">
+                    <p><i class="fa-solid fa-circle-info"></i> โปรดตรวจสอบรายละเอียดและกดปุ่มเพื่อยืนยันอนุมัติการซ่อม</p>
+                </div>
+            </div>
+            <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+                <button onclick="respondQuotation(false)" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-medium rounded-xl text-xs transition">
+                    ปฏิเสธการซ่อม
+                </button>
+                <button onclick="respondQuotation(true)" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-xs shadow transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-check"></i> อนุมัติซ่อม
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: PromptPay Payment Modal -->
+    <div id="paymentModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden border border-slate-200 text-center">
+            <div class="bg-blue-900 text-white p-4 flex justify-between items-center">
+                <h3 class="font-bold text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-qrcode"></i> ชำระเงินผ่าน PromptPay QR
+                </h3>
+                <button onclick="closeModal('paymentModal')" class="text-slate-300 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <p class="text-xs text-slate-500">สแกน QR Code ด้วยแอปธนาคารใดก็ได้เพื่อชำระเงิน</p>
+                
+                <!-- Mock QR Code -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 inline-block shadow-inner">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=PROMPTPAY_M_IT_ALL_IN_ONE" alt="PromptPay QR Code" class="mx-auto rounded-lg">
+                    <p class="text-xs font-bold text-slate-700 mt-2">เอ็ม ไอที ออลอินวัน</p>
+                    <p class="text-xs text-slate-500">พร้อมเพย์: 099-470-9745</p>
+                </div>
+
+                <div class="text-lg font-bold text-indigo-700">
+                    ยอดชำระ: <span id="payAmountText">0</span> บาท
+                </div>
+
+                <div class="pt-2">
+                    <button onclick="confirmPayment()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl shadow transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-check-circle"></i> จำลองการยืนยันชำระเงินเรียบร้อย
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: Admin Edit Status Modal -->
+    <div id="adminEditModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-200">
+            <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
+                <h3 class="font-bold text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square"></i> อัปเดตสถานะงานซ่อม (<span id="adminModalTicketId"></span>)
+                </h3>
+                <button onclick="closeModal('adminEditModal')" class="text-slate-300 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">เปลี่ยนสถานะงาน</label>
+                    <select id="adminStatusSelect" class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500">
+                        <option value="1">1. ส่งแจ้งซ่อมแล้ว (Pending)</option>
+                        <option value="2">2. กำลังตรวจเช็ก (Inspecting)</option>
+                        <option value="3">3. เสนอราคาซ่อม (Quotation)</option>
+                        <option value="4">4. กำลังดำเนินการซ่อม (Repairing)</option>
+                        <option value="5">5. ซ่อมเสร็จสิ้น (Completed)</option>
+                        <option value="6">6. ส่งคืนเรียบร้อย (Delivered)</option>
+                    </select>
+                </div>
+
+                <!-- Price & Items Input (For Quotation) -->
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                    <label class="block text-xs font-bold text-slate-700">กำหนดใบเสนอราคา (กรณีอยู่ขั้นตอนเสนอราคา)</label>
+                    <input type="text" id="adminPartsDesc" placeholder="รายการอะไหล่ เช่น เปลี่ยน SSD 512GB + ค่าบริการ" class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300">
+                    <input type="number" id="adminPartsPrice" placeholder="จำนวนเงิน (บาท)" class="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-300">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">หมายเหตุช่าง / อัปเดตอาการ</label>
+                    <textarea id="adminTechNote" rows="2" placeholder="กรอกบันทึกข้อความช่างถึงลูกค้า..." class="w-full px-3 py-2 text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500"></textarea>
+                </div>
+
+                <div class="pt-2 flex justify-end gap-2">
+                    <button onclick="closeModal('adminEditModal')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-medium rounded-xl">ยกเลิก</button>
+                    <button onclick="saveAdminStatusUpdate()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl shadow">บันทึกการเปลี่ยนแปลง</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-indigo-950 text-indigo-200 py-6 text-xs border-t border-indigo-900 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-2">
+            <p class="font-semibold text-white">ร้าน เอ็ม ไอที ออลอินวัน (M IT ALL IN ONE)</p>
+            <p>11 16 ตำบล นครชุม อำเภอเมืองกำแพงเพชร กำแพงเพชร 62000 | เบอร์โทรศัพท์: 099-470-9745</p>
+            <p class="text-indigo-400">© 2026 M IT ALL IN ONE - Online Computer Repair Ticketing System</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- Core Application State ---
+        let currentView = 'customer'; // 'customer' or 'admin'
+        let activeTicketId = null;
+
+        // Status Map Definitions
+        const STATUS_STEPS = [
+            { id: 1, title: 'ส่งแจ้งซ่อม', icon: 'fa-paper-plane' },
+            { id: 2, title: 'กำลังตรวจเช็ก', icon: 'fa-magnifying-glass' },
+            { id: 3, title: 'เสนอราคา', icon: 'fa-file-invoice-dollar' },
+            { id: 4, title: 'กำลังซ่อม', icon: 'fa-screwdriver-wrench' },
+            { id: 5, title: 'ซ่อมเสร็จสิ้น', icon: 'fa-circle-check' },
+            { id: 6, title: 'ส่งคืนเรียบร้อย', icon: 'fa-box-open' }
+        ];
+
+        // Initial Sample Data Store
+        let repairTickets = [
+            {
+                id: 'REP-2026-001',
+                custName: 'สมชาย ชัยชนะ',
+                custPhone: '081-999-8877',
+                deviceType: 'โน้ตบุ๊ก (Notebook/Laptop)',
+                deviceModel: 'Asus TUF Gaming F15',
+                issueDesc: 'เปิดเครื่องไฟเข้าแต่หน้าจอไม่ติด มีเสียงพัดลมหมุนแรงแล้วดับ',
+                deliveryType: 'pickup',
+                pickupAddress: '99/1 หมู่ 3 ต.นครชุม อ.เมือง จ.กำแพงเพชร',
+                parcelTracking: '',
+                status: 3, // เสนอราคา
+                techNote: 'ตรวจเช็กพบชิปภาคไฟ RAM ชำรุด ต้องดำเนินการเปลี่ยนชิปไอซี',
+                quotation: {
+                    items: [
+                        { desc: 'อะไหล่ชิปควบคุมภาคไฟ (Power IC)', price: 1200 },
+                        { desc: 'ค่าบริการซ่อมบอร์ดและทำความสะอาดระบบระบายความร้อน', price: 600 }
+                    ],
+                    total: 1800,
+                    status: 'pending' // 'pending', 'approved', 'rejected'
+                },
+                paid: false,
+                createdAt: '22/09/2026 10:30'
+            },
+            {
+                id: 'REP-2026-002',
+                custName: 'วิภาวรรณ สุขใจ',
+                custPhone: '089-123-4567',
+                deviceType: 'คอมพิวเตอร์ตั้งโต๊ะ (PC Desktop)',
+                deviceModel: 'Custom PC Core i5 Gen 12',
+                issueDesc: 'เครื่องช้ามาก ค้างบ่อยตอนเปิดโปรแกรมทำงาน',
+                deliveryType: 'self',
+                pickupAddress: '',
+                parcelTracking: '',
+                status: 5, // ซ่อมเสร็จสิ้น
+                techNote: 'อัปเกรดเป็น SSD NVMe 512GB และลงระบบปฏิบัติการใหม่เรียบร้อยแล้ว',
+                quotation: {
+                    items: [
+                        { desc: 'SSD NVMe 512GB High-Speed', price: 1450 },
+                        { desc: 'ค่าบริการย้ายข้อมูลและตั้งค่าระบบ', price: 350 }
+                    ],
+                    total: 1800,
+                    status: 'approved'
+                },
+                paid: true,
+                createdAt: '21/09/2026 14:15'
+            }
+        ];
+
+        // --- Initialization ---
+        window.onload = function() {
+            // Check delivery option highlights on start
+            toggleDeliveryDetails();
+            renderAdminTable();
+            
+            // Set default view to Customer Tracking for demo
+            activeTicketId = 'REP-2026-001';
+            renderTicketDetail('REP-2026-001');
+        };
+
+        // --- Navigation Functions ---
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            const targetTab = document.getElementById(`tab-${tabName}`);
+            if (targetTab) {
+                targetTab.classList.remove('hidden');
+            }
+
+            if (tabName === 'tracking-lookup' && activeTicketId) {
+                renderTicketDetail(activeTicketId);
+            }
+        }
+
+        function toggleAdminView() {
+            if (currentView === 'customer') {
+                currentView = 'admin';
+                document.getElementById('viewToggleText').innerText = 'สลับไปมุมมองลูกค้า';
+                document.getElementById('viewToggleBtn').className = 'px-3 py-1.5 text-xs sm:text-sm bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg shadow-sm transition duration-200 flex items-center gap-1.5';
+                switchTab('admin');
+            } else {
+                currentView = 'customer';
+                document.getElementById('viewToggleText').innerText = 'มุมมองช่าง (Admin)';
+                document.getElementById('viewToggleBtn').className = 'px-3 py-1.5 text-xs sm:text-sm bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold rounded-lg shadow-sm transition duration-200 flex items-center gap-1.5';
+                switchTab('create-ticket');
+            }
+        }
+
+        // --- Delivery Options Handler ---
+        function toggleDeliveryDetails() {
+            const selected = document.querySelector('input[name="deliveryType"]:checked').value;
+            
+            // Toggle visibility
+            document.getElementById('details-pickup').classList.toggle('hidden', selected !== 'pickup');
+            document.getElementById('details-self').classList.toggle('hidden', selected !== 'self');
+            document.getElementById('details-parcel').classList.toggle('hidden', selected !== 'parcel');
+
+            // Toggle active border styles
+            document.getElementById('deliveryOptA').className = `relative flex flex-col p-4 border-2 rounded-2xl cursor-pointer transition duration-150 ${selected === 'pickup' ? 'border-indigo-600 bg-indigo-50/30' : 'border-slate-200'}`;
+            document.getElementById('deliveryOptB').className = `relative flex flex-col p-4 border-2 rounded-2xl cursor-pointer transition duration-150 ${selected === 'self' ? 'border-emerald-600 bg-emerald-50/30' : 'border-slate-200'}`;
+            document.getElementById('deliveryOptC').className = `relative flex flex-col p-4 border-2 rounded-2xl cursor-pointer transition duration-150 ${selected === 'parcel' ? 'border-amber-600 bg-amber-50/30' : 'border-slate-200'}`;
+        }
+
+        // --- Handle Form Submission ---
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const deliveryVal = document.querySelector('input[name="deliveryType"]:checked').value;
+            const newTicket = {
+                id: 'REP-' + new Date().getFullYear() + '-' + String(repairTickets.length + 1).padStart(3, '0'),
+                custName: document.getElementById('custName').value,
+                custPhone: document.getElementById('custPhone').value,
+                deviceType: document.getElementById('deviceType').value,
+                deviceModel: document.getElementById('deviceModel').value || 'ไม่ระบุรุ่น',
+                issueDesc: document.getElementById('issueDesc').value,
+                deliveryType: deliveryVal,
+                pickupAddress: document.getElementById('pickupAddress').value,
+                parcelTracking: document.getElementById('parcelTrackingInput').value,
+                status: 1, // 1: ส่งแจ้งซ่อม
+                techNote: 'รับข้อมูลแจ้งซ่อมเข้าสู่ระบบแล้ว รอช่างเข้าตรวจเช็ก',
+                quotation: null,
+                paid: false,
+                createdAt: new Date().toLocaleString('th-TH')
+            };
+
+            repairTickets.unshift(newTicket);
+            activeTicketId = newTicket.id;
+
+            // Reset form
+            document.getElementById('repairForm').reset();
+            toggleDeliveryDetails();
+            renderAdminTable();
+
+            // Switch to tracking view
+            switchTab('tracking-lookup');
+            renderTicketDetail(newTicket.id);
+
+            alert(`บันทึกการแจ้งซ่อมเรียบร้อยแล้ว!\nหมายเลขตั๋วซ่อมของคุณคือ: ${newTicket.id}`);
+        }
+
+        // --- Ticket Search & Tracking Render ---
+        function searchTicket() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (!query) return;
+
+            const found = repairTickets.find(t => t.id.toLowerCase() === query || t.custPhone.includes(query));
+            if (found) {
+                activeTicketId = found.id;
+                renderTicketDetail(found.id);
+            } else {
+                alert('ไม่พบข้อมูลการแจ้งซ่อมด้วยหมายเลขตั๋วหรือเบอร์โทรศัพท์นี้');
+            }
+        }
+
+        function renderTicketDetail(ticketId) {
+            const ticket = repairTickets.find(t => t.id === ticketId);
+            const container = document.getElementById('ticketDetailContainer');
+
+            if (!ticket) {
+                container.innerHTML = `<div class="text-center py-8 text-slate-500">กรอกหมายเลขตั๋วเพื่อแสดงรายละเอียด</div>`;
+                return;
+            }
+
+            // Build Delivery Label
+            let deliveryText = '';
+            if (ticket.deliveryType === 'pickup') deliveryText = `<span class="text-indigo-700 font-semibold"><i class="fa-solid fa-truck-pickup"></i> ให้ช่างไปรับที่บ้าน</span>`;
+            else if (ticket.deliveryType === 'self') deliveryText = `<span class="text-emerald-700 font-semibold"><i class="fa-solid fa-store"></i> ลูกค้ามาส่งที่ร้าน เอ็ม ไอที ออลอินวัน</span>`;
+            else deliveryText = `<span class="text-amber-700 font-semibold"><i class="fa-solid fa-box"></i> ส่งทางพัสดุเอกชน ${ticket.parcelTracking ? '('+ticket.parcelTracking+')' : ''}</span>`;
+
+            // Progress Bar HTML
+            let stepsHtml = STATUS_STEPS.map((step) => {
+                const isCurrent = step.id === ticket.status;
+                const isPassed = step.id <= ticket.status;
+                
+                return `
+                    <div class="flex-1 flex flex-col items-center text-center relative z-10">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-md transition-all ${
+                            isCurrent ? 'bg-indigo-600 text-white ring-4 ring-indigo-100 scale-110' :
+                            isPassed ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-400'
+                        }">
+                            <i class="fa-solid ${step.icon}"></i>
+                        </div>
+                        <span class="text-xs font-medium mt-2 ${isCurrent ? 'text-indigo-700 font-bold' : isPassed ? 'text-emerald-700' : 'text-slate-400'}">
+                            ${step.title}
+                        </span>
+                    </div>
+                `;
+            }).join('');
+
+            // Calculate progress bar percentage line
+            const progressPercent = Math.min(100, Math.max(0, ((ticket.status - 1) / (STATUS_STEPS.length - 1)) * 100));
+
+            // Quotation & Action Buttons HTML
+            let actionBoxHtml = '';
+            if (ticket.status === 3 && ticket.quotation) {
+                if (ticket.quotation.status === 'pending') {
+                    actionBoxHtml = `
+                        <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl flex flex-col sm:flex-row justify-between items-center gap-3">
+                            <div class="text-xs text-amber-900">
+                                <p class="font-bold text-sm mb-0.5"><i class="fa-solid fa-bell text-amber-600"></i> ช่างออกใบเสนอราคาแล้ว!</p>
+                                <p>ยอดประเมินการซ่อม: <span class="font-bold text-base text-indigo-700">${ticket.quotation.total.toLocaleString()} บาท</span></p>
+                            </div>
+                            <button onclick="openQuotationModal('${ticket.id}')" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-file-signature"></i> ตรวจสอบ & อนุมัติใบเสนอราคา
+                            </button>
+                        </div>
+                    `;
+                } else if (ticket.quotation.status === 'approved') {
+                    actionBoxHtml = `
+                        <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex flex-col sm:flex-row justify-between items-center gap-3">
+                            <div class="text-xs text-emerald-900">
+                                <p class="font-bold text-sm mb-0.5"><i class="fa-solid fa-circle-check text-emerald-600"></i> อนุมัติการซ่อมแล้ว</p>
+                                <p>สถานะการชำระเงิน: ${ticket.paid ? '<span class="text-emerald-700 font-bold">ชำระเรียบร้อยแล้ว</span>' : '<span class="text-amber-700 font-bold">รอการชำระเงิน</span>'}</p>
+                            </div>
+                            ${!ticket.paid ? `
+                                <button onclick="openPaymentModal('${ticket.id}')" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-qrcode"></i> ชำระเงินผ่าน PromptPay QR
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+            }
+
+            // E-Warranty Badge HTML if completed/delivered
+            let warrantyHtml = '';
+            if (ticket.status >= 5) {
+                warrantyHtml = `
+                    <div class="mt-6 p-5 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-2xl shadow-md relative overflow-hidden">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="px-2.5 py-0.5 bg-white/20 text-xs font-semibold rounded-full backdrop-blur-sm">E-Warranty Digital Card</span>
+                                <h4 class="text-lg font-bold mt-1">ใบรับประกันงานซ่อมดิจิทัล</h4>
+                                <p class="text-xs text-emerald-100 mt-1">การรับประกันซอฟต์แวร์และฮาร์ดแวร์โดย ร้าน เอ็ม ไอที ออลอินวัน (รับประกัน 90 วัน)</p>
+                            </div>
+                            <i class="fa-solid fa-shield-halved text-4xl text-white/30"></i>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <!-- Header Status -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-6 border-b border-slate-100">
+                    <div>
+                        <span class="text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">หมายเลขตั๋วซ่อม</span>
+                        <h2 class="text-2xl font-bold text-slate-800 mt-1">${ticket.id}</h2>
+                        <p class="text-xs text-slate-400 mt-0.5">วันที่แจ้งเรื่อง: ${ticket.createdAt}</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-slate-500">รูปแบบจัดส่ง:</span>
+                        <div class="text-sm">${deliveryText}</div>
+                    </div>
+                </div>
+
+                <!-- Step Progress Bar -->
+                <div class="py-8 my-2">
+                    <div class="relative flex justify-between items-center">
+                        <!-- Progress Line -->
+                        <div class="absolute top-5 left-0 right-0 h-1 bg-slate-200 z-0"></div>
+                        <div class="absolute top-5 left-0 h-1 bg-indigo-600 z-0 transition-all duration-500" style="width: ${progressPercent}%;"></div>
+                        
+                        ${stepsHtml}
+                    </div>
+                </div>
+
+                <!-- Interactive Action Box (Quotation / Payment) -->
+                ${actionBoxHtml}
+
+                <!-- Details Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <!-- Device & Symptom Info -->
+                    <div class="p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+                        <h4 class="font-bold text-slate-800 text-sm border-b border-slate-200 pb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-laptop text-indigo-600"></i> ข้อมูลอุปกรณ์และอาการเสีย
+                        </h4>
+                        <div class="text-xs space-y-1.5 text-slate-700">
+                            <p><span class="font-semibold text-slate-500">ผู้แจ้ง:</span> ${ticket.custName} (${ticket.custPhone})</p>
+                            <p><span class="font-semibold text-slate-500">ประเภท:</span> ${ticket.deviceType}</p>
+                            <p><span class="font-semibold text-slate-500">ยี่ห้อ/รุ่น:</span> ${ticket.deviceModel}</p>
+                            <p class="pt-1"><span class="font-semibold text-slate-500">อาการเสีย:</span> ${ticket.issueDesc}</p>
+                        </div>
+                    </div>
+
+                    <!-- Tech Note & Status Log -->
+                    <div class="p-5 bg-indigo-50/50 rounded-2xl border border-indigo-100 space-y-3">
+                        <h4 class="font-bold text-indigo-900 text-sm border-b border-indigo-100 pb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-user-ninja text-indigo-600"></i> อัปเดตล่าสุดจากช่างเทคนิค
+                        </h4>
+                        <div class="text-xs space-y-2 text-indigo-950">
+                            <p class="bg-white p-3 rounded-xl border border-indigo-100 shadow-sm">${ticket.techNote || 'กำลังรอช่างเข้าตรวจสอบอุปกรณ์'}</p>
+                        </div>
+                    </div>
+                </div>
+
+                ${warrantyHtml}
+            `;
+        }
+
+        // --- Admin Dashboard Table Render ---
+        function renderAdminTable() {
+            const tbody = document.getElementById('adminTicketTableBody');
+            document.getElementById('ticketCountBadge').innerText = `${repairTickets.length} รายการ`;
+
+            if (repairTickets.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400 text-xs">ยังไม่มีข้อมูลแจ้งซ่อม</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = repairTickets.map(ticket => {
+                const statusObj = STATUS_STEPS.find(s => s.id === ticket.status) || STATUS_STEPS[0];
+                return `
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="py-3.5 px-4 font-mono font-bold text-indigo-600">${ticket.id}</td>
+                        <td class="py-3.5 px-4">
+                            <div class="font-semibold text-slate-800">${ticket.custName}</div>
+                            <div class="text-xs text-slate-400">${ticket.custPhone}</div>
+                        </td>
+                        <td class="py-3.5 px-4 max-w-xs">
+                            <div class="font-medium text-slate-700 truncate">${ticket.deviceModel}</div>
+                            <div class="text-xs text-slate-400 truncate">${ticket.issueDesc}</div>
+                        </td>
+                        <td class="py-3.5 px-4 text-xs">
+                            ${ticket.deliveryType === 'pickup' ? '<span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-md font-medium">ช่างไปรับ</span>' :
+                              ticket.deliveryType === 'self' ? '<span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-md font-medium">ส่งหน้าร้าน</span>' :
+                              '<span class="px-2 py-0.5 bg-amber-50 text-amber-700 rounded-md font-medium">ส่งพัสดุ</span>'}
+                        </td>
+                        <td class="py-3.5 px-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-semibold rounded-full">
+                                <span class="w-2 h-2 rounded-full bg-indigo-500"></span> ${statusObj.title}
+                            </span>
+                        </td>
+                        <td class="py-3.5 px-4 text-center">
+                            <button onclick="openAdminEditModal('${ticket.id}')" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg text-xs font-bold transition inline-flex items-center gap-1">
+                                <i class="fa-solid fa-[#fa-pen]"></i> อัปเดต
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // --- Quotation & Payment Modal Logic ---
+        function openQuotationModal(ticketId) {
+            const ticket = repairTickets.find(t => t.id === ticketId);
+            if (!ticket || !ticket.quotation) return;
+
+            document.getElementById('quoteId').innerText = 'QT-' + ticket.id;
+            document.getElementById('quoteCustName').innerText = ticket.custName;
+            document.getElementById('quoteTotalPrice').innerText = ticket.quotation.total.toLocaleString();
+
+            const itemsList = document.getElementById('quoteItemsList');
+            itemsList.innerHTML = ticket.quotation.items.map(item => `
+                <tr>
+                    <td class="p-2.5 text-slate-700">${item.desc}</td>
+                    <td class="p-2.5 text-right font-medium text-slate-800">${item.price.toLocaleString()}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('quotationModal').classList.remove('hidden');
+        }
+
+        function respondQuotation(isApproved) {
+            const ticket = repairTickets.find(t => t.id === activeTicketId);
+            if (ticket && ticket.quotation) {
+                if (isApproved) {
+                    ticket.quotation.status = 'approved';
+                    ticket.status = 4; // Advance to Repairing
+                    ticket.techNote = 'ลูกค้าอนุมัติการซ่อมเรียบร้อย ช่างกำลังเริ่มดำเนินการซ่อม';
+                } else {
+                    ticket.quotation.status = 'rejected';
+                    ticket.status = 6; // Deliver back un-repaired
+                    ticket.techNote = 'ลูกค้ายกเลิก/ปฏิเสธการซ่อม ช่างจะดำเนินการจัดส่งเครื่องคืน';
+                }
+            }
+
+            closeModal('quotationModal');
+            renderAdminTable();
+            renderTicketDetail(activeTicketId);
+        }
+
+        function openPaymentModal(ticketId) {
+            const ticket = repairTickets.find(t => t.id === ticketId);
+            if (!ticket || !ticket.quotation) return;
+
+            document.getElementById('payAmountText').innerText = ticket.quotation.total.toLocaleString();
+            document.getElementById('paymentModal').classList.remove('hidden');
+        }
+
+        function confirmPayment() {
+            const ticket = repairTickets.find(t => t.id === activeTicketId);
+            if (ticket) {
+                ticket.paid = true;
+            }
+            closeModal('paymentModal');
+            renderTicketDetail(activeTicketId);
+            alert('ชำระเงินเรียบร้อยแล้ว ขอบพระคุณที่ใช้บริการ เอ็ม ไอที ออลอินวัน');
+        }
+
+        // --- Admin Edit Modal Logic ---
+        function openAdminEditModal(ticketId) {
+            const ticket = repairTickets.find(t => t.id === ticketId);
+            if (!ticket) return;
+
+            activeTicketId = ticket.id;
+            document.getElementById('adminModalTicketId').innerText = ticket.id;
+            document.getElementById('adminStatusSelect').value = ticket.status;
+            document.getElementById('adminTechNote').value = ticket.techNote || '';
+
+            document.getElementById('adminEditModal').classList.remove('hidden');
+        }
+
+        function saveAdminStatusUpdate() {
+            const ticket = repairTickets.find(t => t.id === activeTicketId);
+            if (!ticket) return;
+
+            ticket.status = parseInt(document.getElementById('adminStatusSelect').value);
+            ticket.techNote = document.getElementById('adminTechNote').value;
+
+            // If technician added quotation details
+            const partsDesc = document.getElementById('adminPartsDesc').value;
+            const partsPrice = parseFloat(document.getElementById('adminPartsPrice').value);
+            if (partsDesc && !isNaN(partsPrice)) {
+                ticket.quotation = {
+                    items: [{ desc: partsDesc, price: partsPrice }],
+                    total: partsPrice,
+                    status: 'pending'
+                };
+            }
+
+            closeModal('adminEditModal');
+            renderAdminTable();
+            renderTicketDetail(activeTicketId);
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function addNewMockData() {
+            const newId = 'REP-' + new Date().getFullYear() + '-' + String(repairTickets.length + 1).padStart(3, '0');
+            repairTickets.push({
+                id: newId,
+                custName: 'ลูกค้าทดสอบใหม่',
+                custPhone: '082-111-2233',
+                deviceType: 'โน้ตบุ๊ก (Notebook/Laptop)',
+                deviceModel: 'Lenovo IdeaPad 3',
+                issueDesc: 'คีย์บอร์ดกดไม่ติดหลายปุ่ม',
+                deliveryType: 'self',
+                pickupAddress: '',
+                parcelTracking: '',
+                status: 1,
+                techNote: 'รับเครื่องเรียบร้อยแล้ว',
+                quotation: null,
+                paid: false,
+                createdAt: new Date().toLocaleString('th-TH')
+            });
+            renderAdminTable();
+        }
+    </script>
+</body>
+</html>
